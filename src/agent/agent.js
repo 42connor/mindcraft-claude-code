@@ -414,18 +414,13 @@ export class Agent {
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
 
-        if (settings.only_chat_with.length > 0) {
-            for (let username of settings.only_chat_with) {
-                this.bot.whisper(username, message);
-            }
+        // only_chat_with filters INCOMING chat. Output still goes to
+        // public chat so bystanders can see the bot speaking.
+        if (settings.speak) {
+            speak(to_translate, this.prompter.profile.speak_model);
         }
-        else {
-            if (settings.speak) {
-                speak(to_translate, this.prompter.profile.speak_model);
-            }
-            if (settings.chat_ingame) {this.bot.chat(message);}
-            sendOutputToServer(this.name, message);
-        }
+        if (settings.chat_ingame) { this.bot.chat(message); }
+        sendOutputToServer(this.name, message);
     }
 
     startEvents() {
